@@ -20,6 +20,7 @@ func (app *application) routes() http.Handler {
 	mux.Get("/api/get-client", dynamicMiddleware.ThenFunc(app.getUserById))
 	mux.Post("/api/login", dynamicMiddleware.ThenFunc(app.loginClient))
 	mux.Put("/client-password-recovery/:id", dynamicMiddleware.ThenFunc(app.Recoverybysms))
+	mux.Get("/refreshToken", standardMiddleware.ThenFunc(app.handleRefreshToken))
 
 	// Products
 	mux.Get("/all-products", dynamicMiddleware.ThenFunc(app.getProducts)) // work

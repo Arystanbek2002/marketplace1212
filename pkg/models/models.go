@@ -2,13 +2,21 @@ package models
 
 import (
 	"errors"
+	"time"
 )
 
 var (
 	ErrNoRecord           = errors.New("models: no matching record found")
 	ErrInvalidCredentials = errors.New("models: invalid credentials")
 	ErrDuplicateEmail     = errors.New("models: duplicate email")
+	ErrDuplicateToken     = errors.New("models: duplicate user in token table")
 )
+
+type RefreshToken struct {
+	UserID    int       `json:"user_id"`
+	Token     string    `json:"token"`
+	ExpiresAt time.Time `json:"expires_at"`
+}
 
 type Discount struct {
 	Id          int    `json:"id"`

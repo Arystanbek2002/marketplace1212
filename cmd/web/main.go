@@ -11,6 +11,7 @@ import (
 	"time"
 
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/golang-jwt/jwt/v4"
 	"github.com/golangcollege/sessions"
 	"github.com/rs/cors"
 )
@@ -28,6 +29,38 @@ type application struct {
 	order         *dbs.OrderModel
 	cart          *dbs.CartModel
 	discount      *dbs.DiscountModel
+	token         *dbs.TokenModel
+}
+
+type Claims struct {
+	UserID int    `json:"user_id"`
+	UUID   string `json:"uuid"`
+	jwt.RegisteredClaims
+}
+
+func generateJWT(user_id int, uuid string, t time.Time, secretName string) (string, error) {
+	claims := &Claims{
+		UserID: user_id,
+		UUID:   uuid,
+		RegisteredClaims: jwt.RegisteredClaims{
+			ExpiresAt: jwt.NewNumericDate(t),
+		},
+	}
+
+	token := jwt.NewWithClaims(jwt.SigningMethodHS512, claims)
+	tokenString, err := token.SignedString([]byte(os.Getenv(secretName)))
+	if err != nil {
+		return "", err
+	}
+	return tokenString, nil
+}
+
+func verifyJWT(jwtString, secret string) (*Claims, error) {
+	claims := &Claims{}
+	_, err := jwt.ParseWithClaims(jwtString, claims, func(token *jwt.Token) (interface{}, error) {
+		return []byte(os.Getenv(secret)), nil
+	})
+	return claims, err
 }
 
 func main() {
@@ -61,8 +94,8 @@ func main() {
 		infoLog:  infoLog,
 		session:  session,
 
-		client: &dbs.ClientModel{DB: db},
-
+		client:   &dbs.ClientModel{DB: db},
+		token:    &dbs.TokenModel{DB: db},
 		product:  &dbs.ProductModel{DB: db},
 		fav:      &dbs.FavModel{DB: db},
 		details:  &dbs.InformationModel{DB: db},

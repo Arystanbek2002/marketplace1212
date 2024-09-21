@@ -3,19 +3,37 @@ package main
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"io"
 	"marketplace/pkg/models"
 	"net/http"
 	"strconv"
+
+	"github.com/golang-jwt/jwt/v4"
 )
 
 func (app *application) addCartItem(w http.ResponseWriter, r *http.Request) {
+	c, err := r.Cookie("x-jwt")
+	if err != nil {
+		_ = WriteJSON(w, http.StatusUnauthorized, "Error: No cookie")
+	}
+	tknStr := c.Value
+
+	_, err1 := verifyJWT(tknStr, "ACCESS_SECRET")
+	if err1 != nil && !errors.Is(err1, jwt.ErrTokenExpired) {
+		_ = WriteJSON(w, http.StatusBadRequest, "invalid token access "+err1.Error())
+		return
+	} else if err1 != nil {
+		_ = WriteJSON(w, http.StatusForbidden, "refresh your token")
+		return
+	}
+
 	var newCartItem models.Cart
 
 	body, _ := io.ReadAll(r.Body)
 	r.Body = io.NopCloser(bytes.NewBuffer(body))
 
-	err := json.NewDecoder(r.Body).Decode(&newCartItem)
+	err = json.NewDecoder(r.Body).Decode(&newCartItem)
 	if err != nil {
 		app.clientError(w, http.StatusBadRequest)
 		return
