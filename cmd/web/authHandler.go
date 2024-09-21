@@ -16,7 +16,6 @@ import (
 
 	"github.com/golang-jwt/jwt/v4"
 	"github.com/google/uuid"
-	"github.com/sfreiberg/gotwilio"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -346,24 +345,10 @@ func (app *application) Recoverybysms(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	link := fmt.Sprintf("http://localhost:4000/client-password-recovery?id=%s", idclient)
+	//link := fmt.Sprintf("http://localhost:4000/client-password-recovery?id=%s", idclient)
 
-	sendSMS(clientphone, link)
+	//sendSMS(clientphone, link)
 
-}
-
-func sendSMS(recipient string, message string) error {
-	accountSid := "AC17c5b66f4964850573f2ea5a06a4aa9e"
-	authToken := "2084ef8187bf3aebb4d5ad92f7a80708"
-	twilio := gotwilio.NewTwilioClient(accountSid, authToken)
-
-	from := "+14692405277" // Номер Twilio, с которого будет отправлено SMS
-	to := recipient
-	body := message
-
-	_, _, err := twilio.SendSMS(from, to, body, "", "")
-
-	return err
 }
 
 func (app *application) updatePassword(w http.ResponseWriter, r *http.Request) {
