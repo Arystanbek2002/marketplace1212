@@ -442,7 +442,8 @@ CREATE TABLE `refresh_tokens` (
 --
 -- Индексы сохранённых таблиц
 --
-
+ALTER TABLE `refresh_tokens`
+  ADD PRIMARY KEY (`user_id`);
 --
 -- Индексы таблицы `cart_item`
 --
@@ -524,7 +525,8 @@ ALTER TABLE `user_payment`
 --
 -- AUTO_INCREMENT для сохранённых таблиц
 --
-
+ALTER TABLE `refresh_tokens`
+  MODIFY `user_id` int(11) NOT NULL AUTO_INCREMENT;
 --
 -- AUTO_INCREMENT для таблицы `cart_item`
 --
